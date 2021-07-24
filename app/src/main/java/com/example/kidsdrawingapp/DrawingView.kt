@@ -126,6 +126,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         mDrawPaint!!.strokeWidth = mBrushSize // to use this brush size
     }
 
+    //this will set the a specific color for the paint brush
+    //I'm passing the color as a string, because I can use them that way from colors.xml
+    fun setColor(newColor: String){
+        //parseColor will parse the color string, and return the corresponding color-int #RRGGBB, #AARRGGBB
+        color = Color.parseColor(newColor)
+        mDrawPaint!!.color = color // no color is of type color
+    }
+
     //it will be usable only within my DrawingView class, and I want to have access to it's variables
     // type Path, I inherit from class Path (android.graphics)
     internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path()

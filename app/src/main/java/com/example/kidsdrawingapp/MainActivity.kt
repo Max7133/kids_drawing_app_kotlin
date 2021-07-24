@@ -3,6 +3,7 @@ package com.example.kidsdrawingapp
 import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
@@ -63,4 +64,30 @@ class MainActivity : AppCompatActivity() {
         //to show the dialog
         brushDialog.show()
         }
+
+        // the View that is going to be passed is a button that was clicked on
+        fun paintClicked(view: View){
+            //checking if the button that was selected is the current button or not
+            if(view !== mImageButtonCurrentPaint){
+                //then I want to make the button active(pressed)and of the color that I selected
+                //also I need to check if the view that was passed is a type of ImageButton, "as" to convert it to ImageButton
+                //after all this I added the paintClicked onClick listener in the activity_main, now I can use this function
+                val imageButton = view as ImageButton
+                //it will read the tag property of my ImageButton that I clicked on
+                val colorTag = imageButton.tag.toString()
+                drawing_view.setColor(colorTag)
+                //for changing the appearance of the button when it's pressed, and the other one should be unpressed
+                //when pressed
+                imageButton.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
+                )
+                //for other buttons
+                mImageButtonCurrentPaint!!.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_normal)
+                )
+                //I need to make sure that my mImageButtonCurrentPaint is set to view
+                mImageButtonCurrentPaint = view
+            }
+        }
+
     }
