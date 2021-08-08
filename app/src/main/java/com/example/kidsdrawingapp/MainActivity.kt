@@ -1,10 +1,14 @@
 package com.example.kidsdrawingapp
 
+import android.Manifest
 import android.app.Dialog
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import kotlinx.android.synthetic.main.activity_main.*
@@ -32,7 +36,21 @@ class MainActivity : AppCompatActivity() {
         )
 
         //im calling the showBrushSizeChooserDialog() function
-        ib_brush.setOnClickListener { showBrushSizeChooserDialog() }
+        ib_brush.setOnClickListener {
+            showBrushSizeChooserDialog()
+        }
+
+        //gallery button
+        ib_gallery.setOnClickListener{
+            //User asks for permission, if he already has the permission the he doesn't need to ask for permission
+            //so it checks first if user has the permission
+            //if he has permission
+            if(isReadStorageAllowed()){
+                // run out code to get the image from the gallery
+            }else {
+                requestStoragePermission()
+            }
+        }
     }
 
     // to show brush size selection for changing the brush sizes when drawing
@@ -89,5 +107,53 @@ class MainActivity : AppCompatActivity() {
                 mImageButtonCurrentPaint = view
             }
         }
+
+    private fun requestStoragePermission(){
+        //It will check if I should request the permission or not
+        //array often needs to be of type string,that's why I casted to be a string with toString()
+        //rationale == reason
+        //this could be used when user wants to deny the permission for example
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE).toString())){
+            Toast.makeText(this,"Need permission to add a Background", Toast.LENGTH_SHORT).show()
+        }
+        //For requesting the permission
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_CODE)
+    }
+
+    //Function which will take care of what should happen once the user gives the permission or doesn't
+    //This is a built in function
+    //this fun is just for to user to see if he has permission or not
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            //my code here
+        //it checks if the req code is the same as my storage permission code
+        //did user pressed allow or deny, and then it checks if the user pressed allow
+        if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this@MainActivity, "Permission granted now you can read the storage files.",
+            Toast.LENGTH_LONG).show()
+            //if the user doesn't give the permission
+        }else{
+            Toast.makeText(this@MainActivity, "Oops you just denied the permission.",
+                Toast.LENGTH_LONG).show()
+        }
+    }
+    // fun that will find out if we have access to storage or not
+    private fun isReadStorageAllowed():Boolean{
+        //whatever the result will be, it will be stored in this result variable
+        val result = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)
+    //now I return if the result was true or not
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object{
+        private const val STORAGE_PERMISSION_CODE = 1
+    }
 
     }
