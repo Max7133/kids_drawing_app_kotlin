@@ -58,6 +58,10 @@ class MainActivity : AppCompatActivity() {
                 requestStoragePermission()
             }
         }
+        //undo button
+        ib_undo.setOnClickListener {
+            drawing_view.onClickUndo()
+        }
     }
     // to get the gallery result
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

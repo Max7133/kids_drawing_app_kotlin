@@ -27,10 +27,23 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     private var canvas: Canvas? = null
     // this is for drawing line to stay on the screen and not disappear
     private val mPaths = ArrayList<CustomPath>()
+    // undo button
+    private val mUndoPaths = ArrayList<CustomPath>()
 
     // this will run this function
     init {
         setUpDrawing()
+    }
+
+    // fun that undo stuff
+    fun onClickUndo(){
+        //if there is anything to undo, anything I drawn previously
+        if (mPaths.size > 0){
+            // I get the last entry of mPaths, I remove it and at the same time, I get it as a result
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            // once I undid the paths, then I need to call the invalidate() that will redraw by calling onDraw again
+            invalidate()
+        }
     }
 
     // setting the Null variables from the top to be not Null
