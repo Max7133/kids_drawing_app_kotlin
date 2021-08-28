@@ -1,10 +1,13 @@
 package com.example.kidsdrawingapp
 
 import android.Manifest
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
@@ -46,9 +49,37 @@ class MainActivity : AppCompatActivity() {
             //so it checks first if user has the permission
             //if he has permission
             if(isReadStorageAllowed()){
-                // run out code to get the image from the gallery
+                // run our code to get the image from the gallery
+                    //this intent is for getting the picture from the gallery
+                val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    //starting the activity for result
+                startActivityForResult(pickPhotoIntent, GALLERY)
             }else {
                 requestStoragePermission()
+            }
+        }
+    }
+    // to get the gallery result
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //for checking if the result was ok
+        if(resultCode == Activity.RESULT_OK){
+            //checking if the request code of that is going to be the same from our GALLERY
+            if(requestCode == GALLERY){
+                // try to get data
+                try {
+                    if(data!!.data != null){
+                        iv_background.visibility = View.VISIBLE
+                        //because I'm getting the URI from the data
+                        iv_background.setImageURI(data.data)
+                        //if the data was empty (the user didn't select anything)
+                    }else{
+                        Toast.makeText(this@MainActivity,"Error in parsing the image or its corrupted", Toast.LENGTH_SHORT).show()
+                    }
+                }catch (e: Exception) {
+                    //this will give me in the log the detail of the error
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -154,6 +185,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         private const val STORAGE_PERMISSION_CODE = 1
+        private const val GALLERY = 2
     }
 
     }
