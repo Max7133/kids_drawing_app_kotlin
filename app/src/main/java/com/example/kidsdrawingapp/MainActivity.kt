@@ -5,6 +5,9 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -186,6 +189,28 @@ class MainActivity : AppCompatActivity() {
     //now I return if the result was true or not
         return result == PackageManager.PERMISSION_GRANTED
     }
+
+    // gets a bitmap from the view
+    private fun getBitmapFromView(view: View) : Bitmap {
+        // returns the bitmap(it will take the whole view, height and config or ARGB_8888)
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        // for binding the canvas that is on that view (the thing that user draw)
+        val canvas = Canvas(returnedBitmap)
+        // also I need to get the background (bitmap is the comb of the 3 - background of the view[image], canvas, colors)
+        val bgDrawable = view.background
+        // if there is a background
+        if(bgDrawable != null){
+            bgDrawable.draw(canvas)
+            // if there is no background, it draws white onto the canvas
+        }else{
+            canvas.drawColor(Color.WHITE)
+        }
+        // draw the canvas on to the view
+        view.draw(canvas)
+
+        return returnedBitmap
+    }
+
 
     companion object{
         private const val STORAGE_PERMISSION_CODE = 1
