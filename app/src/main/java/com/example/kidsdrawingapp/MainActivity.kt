@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -19,6 +20,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_brush_size.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,6 +68,17 @@ class MainActivity : AppCompatActivity() {
         //undo button
         ib_undo.setOnClickListener {
             drawing_view.onClickUndo()
+        }
+
+        //save button to access something
+        ib_save.setOnClickListener {
+            if(isReadStorageAllowed()){
+                //it will run BitmapAsyncTask, pass in my container bellow, in the background its going to make it in a bitmap
+                BitmapAsyncTask(getBitmapFromView(fl_drawing_view_container)).execute()
+           //if the user doesn't have access, I want to request permission to get permission to have access to this storage.
+            } else {
+                requestStoragePermission()
+            }
         }
     }
     // to get the gallery result
@@ -210,6 +225,63 @@ class MainActivity : AppCompatActivity() {
 
         return returnedBitmap
     }
+
+    //bitmap Async task
+    //I want to get a bitmap whenever I create a bitmap Async task, and whenever I execute it, it should inherit from Async task
+    //Any, Void, String needs to be passed to this Async task
+    private inner class BitmapAsyncTask(val mBitmap: Bitmap): AsyncTask<Any, Void, String>(){
+        override fun doInBackground(vararg params: Any?): String {
+            // I need to return the String, like I wrote above
+            var result = ""
+            // I'm checking if the bitmap that was passed to my bitmap async task here at the top here, if that bitmap is not null
+            if (mBitmap != null) {
+                // when working with streams, I should do try and catch
+                try {
+                    val bytes = ByteArrayOutputStream()
+                    //I'm going to compress my bitmap, that's why im passing ByteArrayOutputStream
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+                    //Creating a file out of it
+                    //I get the external cache directory, then the absolute file returns the absolute form of this abstract path name
+                    //the file separator is the system name separator character, then I give it the name, whenever the time has passed since the 1st january 1970
+                    //so that each file gets a unique name
+                    val f = File(
+                        externalCacheDir!!.absoluteFile.toString()
+                                + File.separator + "KidsDrawingApp_" + System.currentTimeMillis() / 1000 + ".png"
+                    )
+                    //creating a file output stream, and passing a fike to it(val f)
+                    val fos = FileOutputStream(f)
+                    fos.write(bytes.toByteArray())
+                    //closing the outputstream because once its open, it will stay open until u close it
+                    fos.close()
+                    //storing the result
+                    result = f.absolutePath
+                } catch (e: Exception) {
+                    // this result is going to be empty
+                    result = ""
+                    e.printStackTrace()
+                }
+            }
+            return result
+        }
+
+            // I want to inform the user with a Toast that everything has been done
+            override fun onPostExecute(result: String?) {
+                super.onPostExecute(result)
+                if (!result!!.isEmpty()) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "File saved successfully :$result",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Something went wrong while saving the file.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
 
 
     companion object{
