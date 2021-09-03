@@ -230,6 +230,14 @@ class MainActivity : AppCompatActivity() {
     //I want to get a bitmap whenever I create a bitmap Async task, and whenever I execute it, it should inherit from Async task
     //Any, Void, String needs to be passed to this Async task
     private inner class BitmapAsyncTask(val mBitmap: Bitmap): AsyncTask<Any, Void, String>(){
+        //progress bar, lateinit it will initialise later on
+        private lateinit var mProgressDialog : Dialog
+        //at what moment to use showProgressDialog()
+        override fun onPreExecute() {
+            super.onPreExecute()
+            showProgressDialog()
+        }
+
         override fun doInBackground(vararg params: Any?): String {
             // I need to return the String, like I wrote above
             var result = ""
@@ -266,6 +274,8 @@ class MainActivity : AppCompatActivity() {
 
             // I want to inform the user with a Toast that everything has been done
             override fun onPostExecute(result: String?) {
+                // when I want to set cancel the prg dialog
+                cancelProgressDialog()
                 super.onPostExecute(result)
                 if (!result!!.isEmpty()) {
                     Toast.makeText(
@@ -281,6 +291,19 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+            // it will allow to show prg bar
+            private fun showProgressDialog(){
+                // I'm setting the progress dialogue
+                mProgressDialog = Dialog(this@MainActivity)
+                // I'm setting the content view of prg bar
+                mProgressDialog.setContentView(R.layout.dialog_custom_progress)
+                // I'm displaying the prg bar by calling show()
+                mProgressDialog.show()
+            }
+                // This will cancel the prg dialog
+        private fun cancelProgressDialog(){
+            mProgressDialog.dismiss()
+        }
         }
 
 
